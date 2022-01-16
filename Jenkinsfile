@@ -15,12 +15,14 @@ pipeline {
 	}
 	
 	stages {
-		stage('Build') {
+		stage('Implicit Checkout & Build') {
 			steps {
 				echo "Build"
 				echo "PATH - $PATH"
 				echo "BUILD_NUMBER - $env.BUILD_NUMBER"
 				echo "BUILD_TAG - $env.BUILD_TAG"
+				
+				sh "mvn clean compile"
 			}
 		}
 		stage('Test') {
@@ -42,6 +44,7 @@ pipeline {
 			steps {
 				// Run jenkins inside a docker container
 				script {
+					// dockerImage = docker.build("in28min/currency-exchange-devops:${env.BUILD_TAG}"")
 				    dockerImage = docker.build('in28min/currency-exchange-devops:01')
 				}
 			}
