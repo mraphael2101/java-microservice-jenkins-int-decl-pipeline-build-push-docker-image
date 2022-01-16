@@ -11,7 +11,7 @@ pipeline {
 	environment {
 		dockerHome = tool 'myDocker'
 		mavenHome = tool 'myMaven'
-		PATH = "$dockerHome/bin:$mavenHome/bin:$PATH"
+		PATH = "$dockerHome/bin:$mavenHome/bin:$javaHome/bin:$PATH"
 	}
 	
 	stages {
@@ -25,12 +25,17 @@ pipeline {
 		}
 		stage('Test') {
 			steps {
-				echo "Test"
+				sh "mvn test"
 			}
 		}
 		stage('Integration Test') {
 			steps {
-				echo "Integration Test"
+				sh "mvn failsafe:integration-test failsafe:verify"
+			}
+		}
+		stage('Package') {
+			steps {
+                sh "mvn package -DskipTests"
 			}
 		}
 		stage('Build Docker Image') {
@@ -39,11 +44,6 @@ pipeline {
 				script {
 				    dockerImage = docker.build('in28min/currency-exchange-devops:01')
 				}
-			}
-		}
-		stage('Package') {
-			steps {
-                sh "mvn package -DskipTests"
 			}
 		}
 		stage('Push Docker Image') {
